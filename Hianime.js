@@ -3,9 +3,6 @@ async function searchResults(keyword) {
         const encodedKeyword = encodeURIComponent(keyword);
         const responseText = await fetch(`https://bshar1865-hianime.vercel.app/api/v2/hianime/search?q=${encodedKeyword}`);
         const data = JSON.parse(responseText);
-
-        const filteredAnimes = data.data.animes.filter(anime => anime.episodes.dub !== null); 
-        //Filtering out anime's that don't have dub until we fix soft subs issue
         
         const transformedResults = data.data.animes.map(anime => ({
             title: anime.name,
