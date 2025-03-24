@@ -5,7 +5,7 @@ async function searchResults(keyword) {
         const data = JSON.parse(responseText);
 
         const filteredAnimes = data.data.animes.filter(anime => anime.episodes.dub !== null); 
-        //Filtering out anime's that don't have dub until we fix soft subs issue
+
         
         const transformedResults = data.data.animes.map(anime => ({
             title: anime.name,
@@ -69,16 +69,27 @@ async function extractEpisodes(url) {
 
 async function extractStreamUrl(url) {
     try {
-       const match = url.match(/https:\/\/hianime\.to\/watch\/(.+)$/);
-       const encodedID = match[1];
-       const response = await fetch(`https://bshar1865-hianime.vercel.app/api/v2/hianime/episode/sources?animeEpisodeId=${encodedID}&category=dub`);
-       const data = JSON.parse(response);
-       
-       const hlsSource = data.data.sources.find(source => source.type === 'hls');
-       
-       return hlsSource ? hlsSource.url : null;
+        const match = url.match(/https:\/\/hianime\.to\/watch\/(.+)$/);
+        if (!match) throw new Error("Invalid URL format");
+        const encodedID = match[1];
+        
+        const response = await fetch(`https://bshar1865-hianime.vercel.app/api/v2/hianime/episode/sources?animeEpisodeId=${encodedID}&category=dub`);
+        const responseTwo = await fetch(`https://bshar1865-hianime.vercel.app/api/v2/hianime/episode/sources?animeEpisodeId=${encodedID}&category=sub`);
+        
+        const data = JSON.parse(response);
+        const dataTwo = JSON.parse(responseTwo);
+        
+        const hlsSource = data.data.sources.find(source => source.type === 'hls');
+        const subtitleTrack = dataTwo.data.tracks?.find(track => track.label === 'English');
+        
+        const result = {
+            stream: hlsSource ? hlsSource.url : null,
+            subtitles: subtitleTrack ? subtitleTrack.file : null
+        };
+        
+        return JSON.stringify(result);
     } catch (error) {
-       console.log('Fetch error:', error);
-       return null;
+        console.error('Fetch error:', error);
+        return null;
     }
 }
