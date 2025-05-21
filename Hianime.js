@@ -25,8 +25,8 @@ async function extractDetails(url) {
     try {
         const match = url.match(/https:\/\/hianime\.to\/watch\/(.+)$/);
         const encodedID = match[1];
-        const response = await fetch(`https://bshar1865-hianime.vercel.app/api/v2/hianime/anime/${encodedID}`);
-        const data = JSON.parse(response);
+        const response = await fetchv2(`https://bshar1865-hianime.vercel.app/api/v2/hianime/anime/${encodedID}`);
+        const data = await response.json();
         
         const animeInfo = data.data.anime.info;
         const moreInfo = data.data.anime.moreInfo;
@@ -37,13 +37,14 @@ async function extractDetails(url) {
             airdate: `Aired: ${moreInfo?.aired || 'Unknown'}`
         }];
         
+        console.log("Transformed results:", transformedResults);
         return JSON.stringify(transformedResults);
     } catch (error) {
         console.log('Details error:', error);
         return JSON.stringify([{
-        description: 'Error loading description',
-        aliases: 'Duration: Unknown',
-        airdate: 'Aired: Unknown'
+            description: 'Error loading description',
+            aliases: 'Duration: Unknown',
+            airdate: 'Aired: Unknown'
         }]);
   }
 }
