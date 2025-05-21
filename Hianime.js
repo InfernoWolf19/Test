@@ -52,15 +52,14 @@ async function extractEpisodes(url) {
     try {
         const match = url.match(/https:\/\/hianime\.to\/watch\/(.+)$/);
         const encodedID = match[1];
-        const response = await fetchv2(`https://bshar1865-hianime.vercel.app/api/v2/hianime/anime/${encodedID}/episodes`);
-        const data = await response.json();
+        const response = await fetch(`https://bshar1865-hianime.vercel.app/api/v2/hianime/anime/${encodedID}/episodes`);
+        const data = JSON.parse(response);
 
         const transformedResults = data.data.episodes.map(episode => ({
             href: `https://hianime.to/watch/${encodedID}?ep=${episode.episodeId.split('?ep=')[1]}`,
             number: episode.number
         }));
         
-        console.log("Transformed results:", transformedResults);
         return JSON.stringify(transformedResults);
     } catch (error) {
         console.log('Fetch error:', error);
