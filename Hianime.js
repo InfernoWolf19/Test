@@ -1,20 +1,19 @@
 async function searchResults(keyword) {
     try {
         const encodedKeyword = encodeURIComponent(keyword);
-        const responseText = await fetch(`https://bshar1865-hianime.vercel.app/api/v2/hianime/search?q=${encodedKeyword}`);
-        const data = JSON.parse(responseText);
+        const responseText = await fetchv2(`https://bshar1865-hianime.vercel.app/api/v2/hianime/search?q=${encodedKeyword}`);
+        const data = await responseText.json();
 
-        const filteredAnimes = data.data.animes.filter(anime => anime.episodes.dub !== null); 
-        //Filtering out anime's that don't have dub until we fix soft subs issue
-        
+        console.log("Search results:", data);
+
         const transformedResults = data.data.animes.map(anime => ({
             title: anime.name,
             image: anime.poster,
             href: `https://hianime.to/watch/${anime.id}`
         }));
         
+        console.log("Transformed results:", transformedResults);
         return JSON.stringify(transformedResults);
-        
     } catch (error) {
         console.log('Fetch error:', error);
         return JSON.stringify([{ title: 'Error', image: '', href: '' }]);
